@@ -20,7 +20,7 @@ function App() {
         style={{ width: '100%', height: '100%', background: 'var(--color-bg)' }}
       >
         <Suspense fallback={null}>
-          <ScrollControls pages={8} damping={0} style={{ scrollbarWidth: 'none' }}>
+          <ScrollControls pages={10} damping={0} style={{ scrollbarWidth: 'none' }}>
             {/* HTML Overlay */}
             <Overlay />
 

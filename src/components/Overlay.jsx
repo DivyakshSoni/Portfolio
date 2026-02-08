@@ -10,7 +10,7 @@ const Section = (props) => {
         <section
             id={id}
             style={{
-                height: '100vh',
+                minHeight: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
@@ -61,7 +61,6 @@ const ProjectCard = ({ title, role, desc, tags }) => (
 
 export const Overlay = () => {
     const scroll = useScroll()
-    const videoRef = React.useRef(null)
     const [isMobile, setIsMobile] = React.useState(false)
 
     React.useEffect(() => {
@@ -90,52 +89,6 @@ export const Overlay = () => {
         return () => window.removeEventListener('nav-to', handleNav)
     }, [scroll])
 
-    // Reliable autoplay: Attempt to play unmuted. Browsers might block this.
-    // Use muted=false and play().
-    const ensurePlaying = React.useCallback(() => {
-        if (!videoRef.current) return
-        const v = videoRef.current
-
-        if (v.paused) {
-            v.play().catch((error) => {
-                console.log("Autoplay blocked/failed", error);
-                // Fallback to muted if unmuted fails? 
-                // User wants unmuted explicitly. If it fails, maybe we can't do anything without interaction.
-            })
-        }
-    }, [])
-
-    // Pause when hero scrolls out of view, resume when back in view
-    useEffect(() => {
-        const heroSection = document.getElementById('top')
-        if (!heroSection || !videoRef.current) return
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                const [entry] = entries
-                if (!entry || !videoRef.current) return
-                if (entry.isIntersecting) {
-                    if (videoRef.current.paused) ensurePlaying()
-                } else {
-                    if (!videoRef.current.paused) videoRef.current.pause()
-                }
-            },
-            { root: null, rootMargin: '0px', threshold: 0.2 }
-        )
-        observer.observe(heroSection)
-
-        const tryPlay = () => {
-            if (videoRef.current?.readyState >= 2) ensurePlaying()
-            else videoRef.current?.addEventListener('canplay', ensurePlaying, { once: true })
-        }
-        tryPlay()
-        const t = setTimeout(tryPlay, 300)
-        return () => {
-            clearTimeout(t)
-            observer.disconnect()
-        }
-    }, [ensurePlaying])
-
     return (
         <Scroll html>
             <div style={{ width: '100vw' }}>
@@ -143,87 +96,37 @@ export const Overlay = () => {
                 {/* 1. Hero — heading left, video on the right */}
                 <Section
                     id="top"
-                    data-hero-video
                     style={{
-                        flexDirection: isMobile ? 'column-reverse' : 'row', // Mobile: Video top, Text bottom
-                        alignItems: 'center',
-                        gap: 'clamp(1.5rem, 4vw, 4rem)',
-                        flexWrap: 'wrap',
-                        justifyContent: isMobile ? 'center' : 'space-between',
-                        paddingTop: isMobile ? '120px' : '0', // Mobile needs clearance for fixed nav
-                        paddingBottom: isMobile ? '4rem' : '0',
-                        minHeight: '100vh',
-                        height: 'auto' // Allow growth if content is tall
+                        flexDirection: 'column',
+                        alignItems: isMobile ? 'center' : 'flex-start',
+                        justifyContent: 'center',
+                        paddingTop: isMobile ? '120px' : '0',
+                        textAlign: isMobile ? 'center' : 'left'
                     }}
                 >
-                    {/* Text content (left) */}
+                    {/* Text content (left-aligned on desktop) */}
                     <motion.div
-                        initial={{ opacity: 0, x: -30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7 }}
                         viewport={{ once: true }}
                         style={{
-                            flex: '1 1 280px',
-                            minWidth: '280px',
-                            maxWidth: '600px',
+                            maxWidth: '800px',
                             width: '100%',
-                            order: 1,
-                            zIndex: 10, // Ensure text is reachable and visible
-                            textAlign: isMobile ? 'center' : 'left',
-                            marginTop: isMobile ? '2rem' : '0'
+                            zIndex: 10
                         }}
                     >
-                        <h1 style={{ fontSize: 'clamp(2.25rem, 6vw, 4rem)', lineHeight: 0.95, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: '1rem' }}>
+                        <h1 style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', lineHeight: 1, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: '1.5rem' }}>
                             Complexity <br /> <span style={{ color: 'var(--color-accent)' }}>Into Clarity.</span>
                         </h1>
                         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.4 }} viewport={{ once: true }}>
-                            <p style={{ fontSize: 'clamp(0.9rem, 1.8vw, 1.1rem)', opacity: 0.85, maxWidth: '500px', fontFamily: 'monospace', marginBottom: '0.5rem', marginInline: isMobile ? 'auto' : '0' }}>
+                            <p style={{ fontSize: 'clamp(1rem, 2vw, 1.25rem)', opacity: 0.85, maxWidth: '600px', margin: isMobile ? '0 auto 1rem auto' : '0 0 1rem 0', fontFamily: 'monospace' }}>
                                 <span style={{ color: 'var(--color-accent)', fontWeight: 'bold' }}>Divyaksh Soni</span> • Full-Stack Developer & Systems Thinker
                             </p>
-                            <p style={{ fontSize: 'clamp(0.8rem, 1.4vw, 1rem)', opacity: 0.65, fontFamily: 'monospace', marginTop: '0.25rem' }}>
+                            <p style={{ fontSize: 'clamp(0.9rem, 1.5vw, 1.1rem)', opacity: 0.65, fontFamily: 'monospace' }}>
                                 Building scalable solutions • Automating workflows • Data-driven development
                             </p>
                         </motion.div>
-                    </motion.div>
-
-                    {/* Video (right side) */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.7, delay: 0.2 }}
-                        viewport={{ once: true }}
-                        className="hero-video-box"
-                        style={{
-                            flex: '0 0 auto',
-                            width: isMobile ? '70vw' : 'clamp(200px, 32vw, 340px)', // Larger video on mobile
-                            maxWidth: '400px',
-                            minWidth: '200px',
-                            position: 'relative',
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            background: 'rgba(0,0,0,0.4)',
-                            border: '2px solid rgba(255,255,255,0.12)',
-                            boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
-                            aspectRatio: '9/16',
-                            order: 2,
-                            zIndex: 1 // Keep video z-index low
-                        }}
-                    >
-                        <video
-                            ref={videoRef}
-                            src="/videos/Convert_the_provided_portrait.mp4"
-                            autoPlay
-                            loop
-                            playsInline
-                            // User requested unmuted autoplay. Browsers may block this without interaction.
-                            // We attempt it by not setting muted attribute, or setting muted={false}.
-                            muted={false}
-                            controls={false}
-                            preload="auto"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                        >
-                            Your browser does not support the video tag.
-                        </video>
                     </motion.div>
                 </Section>
 
@@ -317,7 +220,7 @@ export const Overlay = () => {
                 </Section>
 
                 {/* 5. Experience */}
-                <Section style={{ textAlign: 'center', alignItems: 'center', paddingTop: '100px' }} id="experience">
+                <Section style={{ textAlign: 'center', alignItems: 'center', paddingTop: '100px', paddingBottom: '100px', height: 'auto' }} id="experience">
                     <h2 style={{ fontSize: '3rem', marginBottom: '2rem' }}>Professional Timeline</h2>
                     <div style={{ display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', width: '100%', maxWidth: '1200px' }}>
                         <div style={{ textAlign: 'left', padding: '1.5rem', borderLeft: '2px solid var(--color-accent)', background: 'rgba(255,255,255,0.02)' }}>
@@ -364,7 +267,7 @@ export const Overlay = () => {
                 </Section>
 
                 {/* Contact Section */}
-                <Section style={{ height: '100vh', justifyContent: 'center', alignItems: 'center' }} id="contact"><br></br><br></br><br></br><br></br>
+                <Section style={{ height: '100vh', justifyContent: 'center', alignItems: 'center' }} id="contact">
                     <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', marginBottom: '2rem' }}>Get In Touch</h2>
                     <div style={{ textAlign: 'center' }}>
                         <a href="mailto:devsoni1209@gmail.com" style={{
