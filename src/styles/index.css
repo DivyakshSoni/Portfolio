@@ -1,0 +1,126 @@
+:root {
+  --color-bg: #0a0a0a;
+  --color-text: #f0f0f0;
+  --color-accent: #00f0ff;
+  --color-secondary: #1a1a1a;
+  --color-surface: #121212;
+  --font-main: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --navbar-height: 70px;
+  --navbar-height-desktop: 64px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  overflow: hidden; /* For custom scroll or full-screen canvas */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+canvas {
+  touch-action: none;
+}
+
+/* ——— Hero video: fit between navbar and next section ——— */
+section#top {
+  box-sizing: border-box;
+}
+
+section#top video {
+  object-fit: cover;
+  -webkit-playsinline: true;
+  playsinline: true;
+}
+
+/* ——— Responsive: Mobile ——— */
+@media (max-width: 768px) {
+  :root {
+    --navbar-height: 70px;
+  }
+
+  section#top {
+    padding-top: var(--navbar-height);
+    padding-left: clamp(1rem, 5vw, 2rem);
+    padding-right: clamp(1rem, 5vw, 2rem);
+    padding-bottom: clamp(1.5rem, 4vh, 3rem);
+  }
+
+  .hero-video-layer {
+    top: var(--navbar-height);
+  }
+
+  /* Other sections: extra padding on small screens */
+  section#about,
+  section#skills,
+  section#projects,
+  section#experience,
+  section#contact {
+    padding-left: clamp(1rem, 5vw, 2rem);
+    padding-right: clamp(1rem, 5vw, 2rem);
+  }
+}
+
+/* ——— Responsive: Tablet ——— */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --navbar-height: 64px;
+  }
+
+  section#top {
+    padding-top: var(--navbar-height);
+  }
+
+  .hero-video-layer {
+    top: var(--navbar-height);
+  }
+}
+
+/* ——— Responsive: Desktop / large screens ——— */
+@media (min-width: 1025px) {
+  :root {
+    --navbar-height: 64px;
+  }
+
+  .hero-video-layer {
+    top: var(--navbar-height);
+  }
+}
+
+/* ——— Typography scaling ——— */
+@media (max-width: 480px) {
+  section h1 {
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+  }
+
+  section h2 {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+  }
+}
+
+/* ——— Flexible layouts: Skills grid ——— */
+@media (max-width: 768px) {
+  .skills-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+}
+
+/* ——— Images and video scale ——— */
+video {
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
